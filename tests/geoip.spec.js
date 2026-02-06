@@ -61,12 +61,9 @@ test.describe('geoIP tests (not sportland.com)', () => {
       await homePage.verifyGeoIPPopupNotVisible();
       await expect(page).toHaveURL(/sportland\.com/);
     });
-
-    // Verify with screenshot that we are on sportland.com
-    await expect(page).toHaveScreenshot('sportland-homepage.png');
   });
 });
-// TODO from here
+
 test.describe('sportland.com only', () => {
   test.beforeEach(async ({}, testInfo) => {
     test.skip(testInfo.project.name !== 'sportland-com', 'This test only runs on sportland-com');
@@ -75,14 +72,17 @@ test.describe('sportland.com only', () => {
   test('geoIP popup does not appear on sportland.com', async ({ page }) => {
     const homePage = new HomePage(page);
 
-    // Navigate to the homepage using baseURL from config
-    await homePage.openPage();
+    await test.step('Navigate to the homepage', async () => {
+      await homePage.openPage();
+    });
 
-    // Wait for the page to fully load
-    await page.waitForLoadState('networkidle');
+    await test.step('Verify geoIP popup is NOT visible', async () => {
+      await homePage.verifyGeoIPPopupNotVisible();
+    });
 
-    // Verify geoIP popup is NOT visible
-    await homePage.verifyWelcomeBannerNotVisible();
+    await test.step('Verify with screenshot that we are on sportland.com', async () => {
+      await expect(page).toHaveScreenshot('sportland-homepage.png');
+    });
   });
 });
 

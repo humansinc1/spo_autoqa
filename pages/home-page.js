@@ -87,14 +87,7 @@ class HomePage extends BasePage {
   }
 
   /**
-   * Verify that the geoIP detection welcome banner is NOT visible.
-   */
-  async verifyWelcomeBannerNotVisible() {
-    await expect(this.geoIPPopupContent).not.toBeVisible();
-  }
-
-  /**
-   * Verify that the geoIP popup is NOT visible (alias for verifyWelcomeBannerNotVisible).
+   * Verify that the geoIP popup is NOT visible.
    */
   async verifyGeoIPPopupNotVisible() {
     await this.page.waitForLoadState('networkidle');
