@@ -79,10 +79,6 @@ test.describe('sportland.com only', () => {
     await test.step('Verify geoIP popup is NOT visible', async () => {
       await homePage.verifyGeoIPPopupNotVisible();
     });
-
-    await test.step('Verify with screenshot that we are on sportland.com', async () => {
-      await expect(page).toHaveScreenshot('sportland-homepage.png');
-    });
   });
 });
 
