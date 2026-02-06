@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "checkJs": true,
+    "moduleResolution": "node"
+  },
+  "include": [
+    "pages/**/*.js",
+    "tests/**/*.js",
+    "playwright.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "test-results",
+    "playwright-report"
+  ]
+}
