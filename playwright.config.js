@@ -1,6 +1,7 @@
 // @ts-nocheck
 // This file is checked by Node.js at runtime, not TypeScript
-const { defineConfig, devices } = require('@playwright/test');
+const { defineConfig } = require('@playwright/test');
+const { urls } = require('./tests/test-data/urls');
 
 /**
  * Read environment variables from file.
@@ -9,6 +10,17 @@ const { defineConfig, devices } = require('@playwright/test');
 // import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+/**
+ * Environment configuration helper
+ * Switch between environments by changing the active URLs object
+ *
+ * Supported environments:
+ * - urls.live: Production (sportland.ee, sportland.com, sportland.lv)
+ * - urls.demo: Demo environments (demo-sportland-lv, dev-pfr-pl)
+ * - urls.dev: Development environment (sportland-dev-nkx-lv)
+ */
+const activeUrls = urls.demo; // Change to urls.demo or urls.dev for other environments
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -41,25 +53,37 @@ module.exports = defineConfig({
   projects: [
     {
       name: 'sportland-ee',
-      use: { 
-        baseURL: 'https://sportland.ee',
-        ...devices['Desktop Chrome'] 
+      use: {
+        baseURL: activeUrls.sportlandEe,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
       },
     },
 
     {
       name: 'sportland-com',
-      use: { 
-        baseURL: 'https://sportland.com',
-        ...devices['Desktop Chrome'] 
+      use: {
+        baseURL: activeUrls.sportlandCom,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
       },
     },
 
     {
       name: 'sportland-lv',
-      use: { 
-        baseURL: 'https://sportland.lv',
-        ...devices['Desktop Chrome'] 
+      use: {
+        baseURL: activeUrls.sportlandLv,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+
+    {
+      name: 'sportland-pl',
+      use: {
+        baseURL: activeUrls.sportlandPl,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
       },
     },
   ],
