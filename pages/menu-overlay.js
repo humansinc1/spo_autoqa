@@ -1,3 +1,4 @@
+const { expect } = require('@playwright/test');
 const { BasePage } = require('./base-page');
 
 /**
@@ -37,7 +38,6 @@ class MenuOverlay extends BasePage {
    */
   async clickSubMenuLink(index) {
     await this.subMenuLinks.nth(index).click();
-    await this.page.waitForLoadState('networkidle');
   }
 
   /**
@@ -48,11 +48,10 @@ class MenuOverlay extends BasePage {
   async navigateToCategory(menuIndex, subMenuIndex) {
     // Hover over the main menu item
     await this.menuItems.nth(menuIndex).hover();
-    await this.page.waitForTimeout(300); // Wait for submenu to appear
     
     // Click on the submenu link
+    await expect(this.subMenuLinks.nth(subMenuIndex)).toBeVisible();
     await this.subMenuLinks.nth(subMenuIndex).click({ timeout: 5000 });
-    await this.page.waitForLoadState('networkidle');
   }
 }
 

@@ -1,3 +1,4 @@
+const { expect } = require('@playwright/test');
 const { BasePage } = require('./base-page');
 
 /**
@@ -20,8 +21,8 @@ class ProductListingPage extends BasePage {
    * Click on the first product card link.
    */
   async clickFirstProduct() {
+    await expect(this.productCardLinks.first()).toBeVisible();
     await this.productCardLinks.first().click();
-    await this.page.waitForLoadState('networkidle');
   }
 
   /**

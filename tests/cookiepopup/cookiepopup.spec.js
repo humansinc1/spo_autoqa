@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
-const { HomePage } = require('../pages/home-page');
-const { CookieConsentDialog } = require('../pages/cookie-consent-dialog');
-const { test: geoIPTest } = require('./fixtures/geoip.fixture');
+const { HomePage } = require('../../pages/home-page');
+const { CookieConsentDialog } = require('../../pages/cookie-consent-dialog');
+const { test: geoIPTest } = require('../../fixtures/geoip.fixture');
 
 test.describe('Cookie popup tests', () => {
   geoIPTest('cookie popup appears after page load', async ({ pageWithGeoIPHandled }) => {

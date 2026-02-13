@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
-const { HomePage } = require('../pages/home-page');
-const { CookieConsentDialog } = require('../pages/cookie-consent-dialog');
+const { HomePage } = require('../../pages/home-page');
+const { CookieConsentDialog } = require('../../pages/cookie-consent-dialog');
 
 test.describe('geoIP tests (not sportland.com)', () => {
   test.beforeEach(async ({}, testInfo) => {

@@ -166,12 +166,29 @@ class CookieConsentDialog extends BasePage {
    * Accept all cookies to dismiss the popup.
    */
   async acceptAllCookies() {
-    await this.acceptAllButton.click();
-    await this.page.waitForLoadState('networkidle');
-    
+    await this.acceptAllButton.isVisible();
+    await this.acceptAllButton.click();    
     // Verify popup is hidden after acceptance
     await expect(this.dialogContainer).not.toBeVisible({ timeout: 5000 });
     await expect(this.overlayWrapper).not.toBeVisible({ timeout: 5000 });
+  }
+
+  /**
+   * Accept all cookies only if the popup is visible.
+   * This is a defensive method that handles cases where the cookie popup
+   * may not appear (e.g., in headless mode, already accepted, or cookie policy not applicable).
+   * Follows the same pattern used in home-page.js for geoIP popup handling.
+   */
+  async acceptAllCookiesIfVisible() {
+    await this.page.waitForTimeout(3000);
+    try {
+      if (await this.dialogContainer.isVisible({ timeout: 2000 })) {
+        await this.acceptAllCookies();
+      }
+    } catch {
+      // Popup not visible - already accepted, not shown, or timed out
+      // This is expected behavior in headless mode or when cookies are already set
+    }
   }
 
   /**

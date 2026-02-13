@@ -63,8 +63,8 @@ class Pdp extends BasePage {
    */
   async addToCartFirstAvailableSize() {
     const sizeButton = this.firstAvailableSizeButton;
+    await expect(sizeButton).toBeVisible();
     await sizeButton.click();
-    await this.page.waitForLoadState('networkidle')
     await expect(this.addToCartButton).toBeEnabled();
     await this.addToCartButton.click();
   }
@@ -73,6 +73,7 @@ class Pdp extends BasePage {
    * Click checkout button in mini cart.
    */
   async miniCartClickCheckoutButton() {
+    await expect(this.miniCartCheckoutButton).toBeEnabled();
     await this.miniCartCheckoutButton.click();
   }
 }

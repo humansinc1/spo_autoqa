@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { HomePage } = require('../../pages/home-page');
+const { HomePage } = require('../pages/home-page');
 
 /**
  * Фикстура для обработки geoIP popup.

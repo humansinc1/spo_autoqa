@@ -1,7 +1,7 @@
 // @ts-nocheck
 // This file is checked by Node.js at runtime, not TypeScript
 const { defineConfig } = require('@playwright/test');
-const { urls } = require('./tests/test-data/urls');
+const { urls } = require('./test-data/urls');
 
 /**
  * Read environment variables from file.
@@ -34,9 +34,9 @@ module.exports = defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : 4,
+  workers: process.env.CI ? 1 : 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  // reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */

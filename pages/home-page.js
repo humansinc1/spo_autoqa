@@ -76,7 +76,7 @@ class HomePage extends BasePage {
    */
   async openPage() {
     await super.navigate(this.baseURL);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(3000);
   }
 
   /**
@@ -90,7 +90,6 @@ class HomePage extends BasePage {
    * Verify that the geoIP popup is NOT visible.
    */
   async verifyGeoIPPopupNotVisible() {
-    await this.page.waitForLoadState('networkidle');
     await expect(this.geoIPPopupContent).not.toBeVisible();
   }
 
@@ -106,8 +105,6 @@ class HomePage extends BasePage {
    * Verify that the user can stay on the current site and click the button.
    */
   async verifyUserCanStayOnCurrentStore() {
-    await expect(this.stayOnCurrentStore).toBeVisible();
-    // await expect(this.stayOnCurrentStore).toContainText(`Shop on ${this.getCurrentCountry()} store`);
     await this.stayOnCurrentStore.click();
   }
 
@@ -115,6 +112,7 @@ class HomePage extends BasePage {
    * Click "Continue to international" button and verify redirect to sportland.com.
    */
   async clickContinueToInternational() {
+    await expect(this.continueToInternationalButton).toBeVisible();
     await this.continueToInternationalButton.click();
   }
 
@@ -147,7 +145,6 @@ class HomePage extends BasePage {
   async navigateWithGeoIPFlow() {
     await this.openPage();
     await this.completeGeoIPFlow();
-    await this.page.waitForLoadState('networkidle');
   }
 }
 

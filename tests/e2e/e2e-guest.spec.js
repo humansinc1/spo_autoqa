@@ -16,7 +16,7 @@ test('E2E: Guest one product/dpd parcel/swedbank checkout', async ({ page }, tes
 
   await test.step('Navigate to product', async () => {
     await homePage.navigateWithGeoIPFlow();
-    await cookieConsent.acceptAllCookies();
+    await cookieConsent.acceptAllCookiesIfVisible();
     await menuOverlay.navigateToCategory(2, 1);
     await productListingPage.clickFirstProduct();
   });

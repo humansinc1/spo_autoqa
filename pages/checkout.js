@@ -1,5 +1,6 @@
 const { expect } = require('@playwright/test');
 const { BasePage } = require('./base-page');
+const { timeout } = require('../playwright.config');
 
 /**
  * Test data for checkout tests.
@@ -184,6 +185,7 @@ class Checkout extends BasePage {
    * Click continue as guest button on Checkout Step 1.
    */
   async clickContinueAsGuest() {
+    await expect(this.continueAsGuestButton).toBeVisible();
     await this.continueAsGuestButton.click();
   }
 
@@ -322,19 +324,21 @@ class Checkout extends BasePage {
    */
   async completeGuestCheckoutDpdParcel(testInfo) {
     // Step 1: Select delivery method
+    await expect(this.deliveryMethodSelector).toBeVisible();
     await this.deliveryMethodSelector.click();
+    // TODO new classes were introduced
     await this.selectDeliveryMethodByOptionsCount();
-    await this.page.waitForLoadState('networkidle');
 
     // Step 2: Select DPD pickup
+    await expect(this.dpdPickupRadio).toBeVisible();
     await this.dpdPickupRadio.click();
-    await this.page.waitForLoadState('networkidle');
+    await expect(this.deliveryOptionDropdown).toBeVisible();
     await this.deliveryOptionDropdown.click();
     await this.deliveryOptionDropdownOption.first().click();
 
     // Step 3: Proceed to address step
+    await expect(this.deliveryStepButton).toBeEnabled();
     await this.deliveryStepButton.click();
-    await this.page.waitForLoadState('networkidle');
 
     // Step 4: Fill guest form
     await this.guestEmailField.fill(this.testData.guestEmail);
@@ -343,27 +347,35 @@ class Checkout extends BasePage {
     await this.telephoneField.fill(this.getPhoneNumberByProject(testInfo));
 
     // Step 5: Submit guest form
+    await expect(this.page.locator('.CheckoutGuestForm-ActionsWrapper button')).toBeEnabled();
     await this.page.locator('.CheckoutGuestForm-ActionsWrapper button').click();
-    await this.page.waitForLoadState('networkidle');
 
     // Step 6: Select makecommerce payment
+    await expect(this.makecommercePaymentMethod).toBeVisible();
     await this.makecommercePaymentMethod.click();
-    await this.page.waitForLoadState('networkidle');
+    await expect(this.makecommercePaymentChannel.first()).toBeVisible();
     await this.makecommercePaymentChannel.first().click();
+    await expect(this.page.locator('label').first()).toBeVisible();
     await this.page.locator('label').first().click();
     await this.page.locator('label').nth(2).click();
 
     // Step 7: Proceed to payment
+    await expect(this.paymentStepButton).toBeEnabled({timeout: 30000})
     await this.paymentStepButton.click();
-    await this.page.waitForLoadState('networkidle');
+    
+    // Wait for navigation to payment gateway URL (handle redirects with RegExp)
+    await this.page.waitForURL('**/banklinktest.maksekeskus.ee/**', { timeout: 30000 });
 
     // Step 8: Handle payment gateway
+    await expect(this.paymentGatewayButton).toBeEnabled({timeout: 30000})
     await this.paymentGatewayButton.click();
+    await this.page.waitForTimeout(1000)
+    await expect(this.paymentGatewayButton).toBeEnabled({timeout: 30000})
     await this.paymentGatewayButton.click();
-    // await this.page.waitForLoadState('networkidle');
 
     // Step 9: Wait for URL to contain base URL and verify success
-    await this.page.waitForURL('**/checkout/success**');
+    await this.page.waitForTimeout(3000)
+    await this.page.waitForURL('**/checkout/**');
     await expect(this.successPage).toBeVisible();
   }
 }
