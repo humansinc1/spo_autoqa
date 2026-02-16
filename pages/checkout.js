@@ -170,9 +170,9 @@ class Checkout extends BasePage {
     await this.page.locator(`#${type}`).click();
   }
 
-  // Makecommerce payment locators
-  get makecommercePaymentMethod() {
-    return this.page.locator('.CheckoutPayment_code_makecommerce');
+  // Payment method locators
+  getPaymentMethodLocator(paymentCode) {
+    return this.page.locator(`.CheckoutPayment_code_${paymentCode}`);
   }
 
   get makecommercePaymentChannel() {
@@ -184,117 +184,11 @@ class Checkout extends BasePage {
   }
 
   /**
-   * Verify checkout page is opened.
-   */
-  async wasCheckoutOpened() {
-    await expect(this.checkoutPageTitle).toBeVisible();
-  }
-
-  /**
    * Click continue as guest button on Checkout Step 1.
    */
   async clickContinueAsGuest() {
     await expect(this.continueAsGuestButton).toBeVisible();
     await this.continueAsGuestButton.click();
-  }
-
-  /**
-   * Fill login form on Checkout Step 1.
-   */
-  async fillLoginForm() {
-    await this.userEmail.fill(this.testData.registeredEmail);
-    await this.userPassword.pressSequentially(this.testData.registeredPassword, { delay: 100 });
-    await this.loginButton.click();
-  }
-
-  /**
-   * Choose second delivery method on Checkout Step 2.
-   */
-  async chooseSecondDeliveryMethod() {
-    await this.deliveryMethodSelector.click();
-    await this.deliveryMethodButton.nth(0).click();
-  }
-
-  /**
-   * Choose second delivery option on Checkout Step 2.
-   */
-  async chooseSecondDeliveryOption() {
-    await this.deliveryOptionButton.nth(1).click();
-    await this.deliveryOptionDropdown.click();
-    await this.deliveryOptionDropdownOption.nth(0).click();
-  }
-
-  /**
-   * Click proceed to Step 3 button on Checkout Step 2.
-   */
-  async clickProceedToStep3() {
-    await this.deliveryStepButton.click();
-  }
-
-  /**
-   * Fill full shipping address form on Checkout Step 3.
-   */
-  async fillFullShippingAddressForm() {
-    if (await this.guestEmailField.isVisible()) {
-      await this.guestEmailField.fill(this.testData.guestEmail);
-      await this.firstNameField.fill(this.testData.guestFirstname);
-      await this.lastNameField.fill(this.testData.guestLastname);
-    } else {
-      await this.firstNameField.fill(this.testData.registeredFirstname);
-      await this.lastNameField.fill(this.testData.registeredLastname);
-    }
-
-    await this.regionField.selectOption(this.testData.regionPfr);
-    await this.postcodeField.fill(this.testData.postcodePfr);
-    await this.cityField.fill(this.testData.cityPfr);
-    await this.streetField.fill(this.testData.streetPfr);
-    await this.telephoneField.fill(this.testData.telephone);
-  }
-
-  /**
-   * Click proceed to Step 4 button on Checkout Step 3.
-   */
-  async clickProceedToStep4() {
-    await this.addressStepButton.click();
-  }
-
-  /**
-   * Choose first payment method on Checkout Step 4.
-   */
-  async chooseFirstPaymentMethod() {
-    await this.paymentMethod.nth(0).click();
-  }
-
-  /**
-   * Choose first payment option on Checkout Step 4.
-   */
-  async chooseFirstPaymentOption() {
-    await this.paymentOption.nth(0).click();
-  }
-
-  /**
-   * Accept agreement checkboxes on Checkout Step 4.
-   */
-  async acceptAgreement() {
-    await this.agreePersonalData.check();
-    await this.agreeTerms.check();
-  }
-
-  /**
-   * Click pay button on Checkout Step 4.
-   */
-  async clickPayButton() {
-    await this.paymentStepButton.click();
-  }
-
-  /**
-   * Accept sandbox payment on payment portal.
-   */
-  async acceptSandboxPayment() {
-    await this.page.waitForURL('https://vsa.przelewy24.pl/en/payment', { waitUntil: 'domcontentloaded' });
-    await expect(this.paymentSandboxAcceptButton).toBeVisible();
-    await this.paymentSandboxAcceptButton.click();
-    await expect(this.successPage).toBeVisible();
   }
 
   /**
@@ -352,9 +246,10 @@ class Checkout extends BasePage {
     await expect(this.page.locator('.CheckoutGuestForm-ActionsWrapper button')).toBeEnabled();
     await this.page.locator('.CheckoutGuestForm-ActionsWrapper button').click();
 
-    // Step 6: Select makecommerce payment
-    await expect(this.makecommercePaymentMethod).toBeVisible();
-    await this.makecommercePaymentMethod.click();
+    // Step 6: Select payment method
+    const paymentMethod = this.getPaymentMethodLocator('makecommerce');
+    await expect(paymentMethod).toBeVisible();
+    await paymentMethod.click();
     await expect(this.makecommercePaymentChannel.first()).toBeVisible();
     await this.makecommercePaymentChannel.first().click();
     await expect(this.page.locator('label').first()).toBeVisible();
