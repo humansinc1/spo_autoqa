@@ -74,11 +74,19 @@ class Checkout extends BasePage {
   }
 
   get deliveryOptionDropdown() {
-    return this.page.locator('.CheckoutDeliveryOption-Row2 .CheckoutDeliveryOption-InputContainer');
+    return this.page.locator('.CheckoutDeliveryOption .CheckoutDeliveryOption-InputContainer');
   }
 
   get deliveryOptionDropdownOption() {
-    return this.page.locator('.CheckoutDeliveryOption-ListElement li');
+    return this.page.locator('.CheckoutDeliveryOption-ListElement li, [role="option"]');
+  }
+
+  get storePickupDropdownSelected() {
+    return this.page.locator('.StorePickupDropdown-Selected');
+  }
+
+  get storePickupDropdownStore() {
+    return this.page.locator('.StorePickupDropdown-Store');
   }
 
   get deliveryStepButton() {
@@ -147,6 +155,14 @@ class Checkout extends BasePage {
     return this.page.locator('.CheckoutBilling-Button');
   }
 
+  get guestFormSubmitButton() {
+    return this.page.locator('.CheckoutGuestForm-ActionsWrapper button');
+  }
+
+  get agreementLabels() {
+    return this.page.locator('label');
+  }
+
   // Payment sandbox locators
   get paymentSandboxAcceptButton() {
     return this.page.locator('#user_account_pbl_correct');
@@ -200,6 +216,126 @@ class Checkout extends BasePage {
   }
 
   /**
+   * Open delivery options and select delivery method.
+   * @param {string} type - Delivery type: 'store_pickup', 'parcel', or 'carrier'
+   */
+  async selectDeliveryType(type) {
+    await expect(this.deliveryMethodSelector).toBeVisible();
+    await this.deliveryMethodSelector.click();
+    await this.selectDeliveryMethod(type);
+  }
+
+  /**
+   * Select first available delivery option.
+   * Handles both dropdown-based and direct-option delivery UIs.
+   */
+  async selectFirstAvailableDeliveryOption() {
+    // Store pickup has its own dropdown implementation.
+    if (await this.storePickupDropdownSelected.first().isVisible()) {
+      await this.storePickupDropdownSelected.first().click();
+      await expect(this.storePickupDropdownStore.first()).toBeVisible();
+      await this.storePickupDropdownStore.first().click();
+      return;
+    }
+
+    if (await this.deliveryOptionDropdown.first().isVisible()) {
+      await this.deliveryOptionDropdown.first().click();
+      await expect(this.deliveryOptionDropdownOption.first()).toBeVisible();
+      await this.deliveryOptionDropdownOption.first().click();
+      return;
+    }
+
+    await expect(this.deliveryOptionButton.first()).toBeVisible();
+    await this.deliveryOptionButton.first().click();
+
+    if (await this.deliveryOptionDropdown.first().isVisible()) {
+      await this.deliveryOptionDropdown.first().click();
+      await expect(this.deliveryOptionDropdownOption.first()).toBeVisible();
+      await this.deliveryOptionDropdownOption.first().click();
+    }
+  }
+
+  /**
+   * Proceed from delivery step to guest details step.
+   */
+  async continueFromDeliveryStep() {
+    await expect(this.deliveryStepButton).toBeEnabled();
+    await this.deliveryStepButton.click();
+  }
+
+  /**
+   * Fill guest contact form.
+   * @param {Object} testInfo - Playwright testInfo object
+   */
+  async fillGuestContactForm(testInfo) {
+    await this.guestEmailField.fill(this.testData.guestEmail);
+    await this.firstNameField.fill(this.testData.guestFirstname);
+    await this.lastNameField.fill(this.testData.guestLastname);
+    await this.telephoneField.fill(this.getPhoneNumberByProject(testInfo));
+  }
+
+  /**
+   * Submit guest form.
+   */
+  async submitGuestForm() {
+    await expect(this.guestFormSubmitButton).toBeEnabled();
+    await this.guestFormSubmitButton.click();
+  }
+
+  /**
+   * Select default MakeCommerce payment method and agreements.
+   */
+  async selectDefaultPaymentAndAgreements() {
+    const paymentMethod = this.getPaymentMethodLocator('makecommerce');
+    await expect(paymentMethod).toBeVisible();
+    await paymentMethod.click();
+    await expect(this.makecommercePaymentChannel.first()).toBeVisible();
+    await this.makecommercePaymentChannel.first().click();
+    await expect(this.agreementLabels.first()).toBeVisible();
+    await this.agreementLabels.first().click();
+    await this.agreementLabels.nth(2).click();
+  }
+
+  /**
+   * Proceed to payment gateway and confirm transaction.
+   */
+  async completePaymentInGateway() {
+    await expect(this.paymentStepButton).toBeEnabled({ timeout: 30000 });
+    await this.paymentStepButton.click();
+
+    await this.page.waitForURL('**/banklinktest.maksekeskus.ee/**', {
+      timeout: 30000,
+      waitUntil: 'domcontentloaded'
+    });
+
+    await expect(this.paymentGatewayButton).toBeEnabled({ timeout: 30000 });
+    await this.paymentGatewayButton.click();
+    await expect(this.paymentGatewayButton).toBeEnabled({ timeout: 30000 });
+    await this.paymentGatewayButton.click();
+  }
+
+  /**
+   * Wait for checkout success page after payment.
+   */
+  async assertCheckoutSuccess() {
+    await this.page.waitForURL('**/checkout/**', { waitUntil: 'domcontentloaded' });
+    await expect(this.successPage).toBeVisible({ timeout: 30000 });
+  }
+
+  /**
+   * Shared part of guest checkout from delivery step to success.
+   * @param {Object} testInfo - Playwright testInfo object
+   */
+  async completeGuestCheckoutFromDelivery(testInfo) {
+    await this.continueFromDeliveryStep();
+    await this.fillGuestContactForm(testInfo);
+    await this.submitGuestForm();
+    await this.selectDefaultPaymentAndAgreements();
+    await this.completePaymentInGateway();
+    await this.assertCheckoutSuccess();
+  }
+
+  /**
    * Get phone number based on project name from testInfo.
    * @param {Object} testInfo - Playwright testInfo object
    * @returns {string} Phone number for the project
@@ -222,60 +358,26 @@ class Checkout extends BasePage {
    */
   async completeGuestCheckoutDpdParcel(testInfo) {
     // Step 1: Select delivery method
-    await expect(this.deliveryMethodSelector).toBeVisible();
-    await this.deliveryMethodSelector.click();
-    await this.selectDeliveryMethod('parcel');
+    await this.selectDeliveryType('parcel');
 
     // Step 2: Select DPD pickup
     await this.selectPickupPoint('dpd_pickup');
-    await expect(this.deliveryOptionDropdown).toBeVisible();
-    await this.deliveryOptionDropdown.click();
-    await this.deliveryOptionDropdownOption.first().click();
+    await this.selectFirstAvailableDeliveryOption();
+    await this.completeGuestCheckoutFromDelivery(testInfo);
+  }
 
-    // Step 3: Proceed to address step
-    await expect(this.deliveryStepButton).toBeEnabled();
-    await this.deliveryStepButton.click();
+  /**
+   * Complete the full guest checkout flow with store pickup delivery.
+   * @param {Object} testInfo - Playwright testInfo object
+   */
+  async completeGuestCheckoutStorePickup(testInfo) {
+    // Step 1: Select delivery method
+    await this.selectDeliveryType('store_pickup');
 
-    // Step 4: Fill guest form
-    await this.guestEmailField.fill(this.testData.guestEmail);
-    await this.firstNameField.fill(this.testData.guestFirstname);
-    await this.lastNameField.fill(this.testData.guestLastname);
-    await this.telephoneField.fill(this.getPhoneNumberByProject(testInfo));
+    // Step 2: Select first available store pickup option
+    await this.selectFirstAvailableDeliveryOption();
 
-    // Step 5: Submit guest form
-    await expect(this.page.locator('.CheckoutGuestForm-ActionsWrapper button')).toBeEnabled();
-    await this.page.locator('.CheckoutGuestForm-ActionsWrapper button').click();
-
-    // Step 6: Select payment method
-    const paymentMethod = this.getPaymentMethodLocator('makecommerce');
-    await expect(paymentMethod).toBeVisible();
-    await paymentMethod.click();
-    await expect(this.makecommercePaymentChannel.first()).toBeVisible();
-    await this.makecommercePaymentChannel.first().click();
-    await expect(this.page.locator('label').first()).toBeVisible();
-    await this.page.locator('label').first().click();
-    await this.page.locator('label').nth(2).click();
-
-    // Step 7: Proceed to payment
-    await expect(this.paymentStepButton).toBeEnabled({ timeout: 30000 });
-    await this.paymentStepButton.click();
-    
-    // Wait for navigation to payment gateway URL - use domcontentloaded instead of networkidle
-    await this.page.waitForURL('**/banklinktest.maksekeskus.ee/**', { 
-      timeout: 30000,
-      waitUntil: 'domcontentloaded'
-    });
-
-    // Step 8: Handle payment gateway - use web-first assertions
-    await expect(this.paymentGatewayButton).toBeEnabled({ timeout: 30000 });
-    await this.paymentGatewayButton.click();
-    // Wait for button to be enabled again after click
-    await expect(this.paymentGatewayButton).toBeEnabled({ timeout: 30000 });
-    await this.paymentGatewayButton.click();
-
-    // Step 9: Wait for URL to contain base URL and verify success - use domcontentloaded
-    await this.page.waitForURL('**/checkout/**', { waitUntil: 'domcontentloaded' });
-    await expect(this.successPage).toBeVisible();
+    await this.completeGuestCheckoutFromDelivery(testInfo);
   }
 }
 

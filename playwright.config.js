@@ -23,6 +23,13 @@ const { urls } = require('./test-data/urls');
 const activeUrls = urls.demo; // Change to urls.demo or urls.dev for other environments
 
 /**
+ * Headed mode configuration
+ * Set to true to run tests in headed mode (visible browser window)
+ * Useful for debugging and visual verification
+ */
+const runHeaded = true;
+
+/**
  * See https://playwright.dev/docs/test-configuration.
  */
 module.exports = defineConfig({
@@ -41,6 +48,9 @@ module.exports = defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     // baseURL: 'http://localhost:3000',
+
+    /* Run browser in headed mode when runHeaded is true */
+    headless: !runHeaded,
 
     /* Collect trace. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
