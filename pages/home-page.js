@@ -127,14 +127,18 @@ class HomePage extends BasePage {
 
     // Handle geoIP popup if visible - use waitFor instead of networkidle
     try {
+      // Wait for popup container to appear
       await this.geoIPPopupContent.waitFor({ state: 'visible', timeout: 5000 });
+      
       if (await this.stayOnCurrentStore.isVisible()) {
         await this.stayOnCurrentStore.click();
-        // Wait for popup to disappear after click
+        // Wait for popup to disappear after click - use multiple strategies
         await this.geoIPPopupContent.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        // Additional wait for any animation/transition
+        await this.page.waitForTimeout(500);
       }
     } catch {
-      // Popup not visible or already handled
+      // Popup not visible - continue
     }
   }
 

@@ -165,11 +165,13 @@ class CookieConsentDialog extends BasePage {
    * Accept all cookies to dismiss the popup.
    */
   async acceptAllCookies() {
-    await this.acceptAllButton.isVisible();
+    await expect(this.acceptAllButton).toBeVisible();
     await this.acceptAllButton.click();    
-    // Verify popup is hidden after acceptance
+    // Verify popup is hidden after acceptance - wait for it to actually disappear
     await expect(this.dialogContainer).not.toBeVisible({ timeout: 5000 });
     await expect(this.overlayWrapper).not.toBeVisible({ timeout: 5000 });
+    // Additional small wait for animation to complete
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -183,6 +185,8 @@ class CookieConsentDialog extends BasePage {
       // Use web-first assertion - auto-waits for visibility
       await expect(this.dialogContainer).toBeVisible({ timeout: 5000 });
       await this.acceptAllCookies();
+      // Wait for any animation/transition to complete
+      await this.page.waitForTimeout(500);
     } catch {
       // Popup not visible - already accepted, not shown, or timed out
       // This is expected behavior in headless mode or when cookies are already set
