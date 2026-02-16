@@ -10,9 +10,11 @@ class BasePage {
 
   /**
    * Navigate to a specific URL.
+   * @param {string} url - The URL to navigate to
+   * @param {Object} options - Optional navigation options (waitUntil, timeout, etc.)
    */
-  async navigate(url) {
-    await this.page.goto(url);
+  async navigate(url, options = {}) {
+    await this.page.goto(url, options);
   }
 
   /**

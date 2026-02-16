@@ -283,6 +283,7 @@ class Checkout extends BasePage {
    */
   async acceptSandboxPayment() {
     await this.page.waitForURL('https://vsa.przelewy24.pl/en/payment', { waitUntil: 'domcontentloaded' });
+    await expect(this.paymentSandboxAcceptButton).toBeVisible();
     await this.paymentSandboxAcceptButton.click();
     await expect(this.successPage).toBeVisible();
   }
@@ -360,22 +361,24 @@ class Checkout extends BasePage {
     await this.page.locator('label').nth(2).click();
 
     // Step 7: Proceed to payment
-    await expect(this.paymentStepButton).toBeEnabled({timeout: 30000})
+    await expect(this.paymentStepButton).toBeEnabled({ timeout: 30000 });
     await this.paymentStepButton.click();
     
-    // Wait for navigation to payment gateway URL (handle redirects with RegExp)
-    await this.page.waitForURL('**/banklinktest.maksekeskus.ee/**', { timeout: 30000 });
+    // Wait for navigation to payment gateway URL - use domcontentloaded instead of networkidle
+    await this.page.waitForURL('**/banklinktest.maksekeskus.ee/**', { 
+      timeout: 30000,
+      waitUntil: 'domcontentloaded'
+    });
 
-    // Step 8: Handle payment gateway
-    await expect(this.paymentGatewayButton).toBeEnabled({timeout: 30000})
+    // Step 8: Handle payment gateway - use web-first assertions
+    await expect(this.paymentGatewayButton).toBeEnabled({ timeout: 30000 });
     await this.paymentGatewayButton.click();
-    await this.page.waitForTimeout(1000)
-    await expect(this.paymentGatewayButton).toBeEnabled({timeout: 30000})
+    // Wait for button to be enabled again after click
+    await expect(this.paymentGatewayButton).toBeEnabled({ timeout: 30000 });
     await this.paymentGatewayButton.click();
 
-    // Step 9: Wait for URL to contain base URL and verify success
-    await this.page.waitForTimeout(3000)
-    await this.page.waitForURL('**/checkout/**');
+    // Step 9: Wait for URL to contain base URL and verify success - use domcontentloaded
+    await this.page.waitForURL('**/checkout/**', { waitUntil: 'domcontentloaded' });
     await expect(this.successPage).toBeVisible();
   }
 }

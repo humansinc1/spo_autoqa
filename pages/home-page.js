@@ -75,8 +75,7 @@ class HomePage extends BasePage {
    * Navigate to the homepage.
    */
   async openPage() {
-    await super.navigate(this.baseURL);
-    await this.page.waitForTimeout(3000);
+    await super.navigate(this.baseURL, { waitUntil: 'domcontentloaded' });
   }
 
   /**
@@ -126,10 +125,13 @@ class HomePage extends BasePage {
       return;
     }
 
-    // Handle geoIP popup if visible
+    // Handle geoIP popup if visible - use waitFor instead of networkidle
     try {
-      if (await this.stayOnCurrentStore.isVisible({ timeout: 2000 })) {
-        await this.verifyUserCanStayOnCurrentStore();
+      await this.geoIPPopupContent.waitFor({ state: 'visible', timeout: 5000 });
+      if (await this.stayOnCurrentStore.isVisible()) {
+        await this.stayOnCurrentStore.click();
+        // Wait for popup to disappear after click
+        await this.geoIPPopupContent.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
       }
     } catch {
       // Popup not visible or already handled

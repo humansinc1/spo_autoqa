@@ -54,7 +54,6 @@ class CookieConsentDialog extends BasePage {
    * Verify that the cookie consent dialog is visible.
    */
   async verifyDialogVisible() {
-    await this.page.waitForLoadState('networkidle');
     await expect(this.dialogContainer).toBeVisible();
   }
 
@@ -177,14 +176,13 @@ class CookieConsentDialog extends BasePage {
    * Accept all cookies only if the popup is visible.
    * This is a defensive method that handles cases where the cookie popup
    * may not appear (e.g., in headless mode, already accepted, or cookie policy not applicable).
-   * Follows the same pattern used in home-page.js for geoIP popup handling.
+   * Uses web-first assertions for reliable waiting.
    */
   async acceptAllCookiesIfVisible() {
-    await this.page.waitForTimeout(3000);
     try {
-      if (await this.dialogContainer.isVisible({ timeout: 2000 })) {
-        await this.acceptAllCookies();
-      }
+      // Use web-first assertion - auto-waits for visibility
+      await expect(this.dialogContainer).toBeVisible({ timeout: 5000 });
+      await this.acceptAllCookies();
     } catch {
       // Popup not visible - already accepted, not shown, or timed out
       // This is expected behavior in headless mode or when cookies are already set
