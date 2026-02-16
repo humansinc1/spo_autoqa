@@ -161,6 +161,15 @@ class Checkout extends BasePage {
     return this.page.locator('#dpd_pickup');
   }
 
+  /**
+   * Select pickup point by type.
+   * @param {string} type - Pickup point type (e.g., 'dpd_pickup')
+   */
+  async selectPickupPoint(type) {
+    await expect(this.page.locator(`#${type}`)).toBeVisible();
+    await this.page.locator(`#${type}`).click();
+  }
+
   // Makecommerce payment locators
   get makecommercePaymentMethod() {
     return this.page.locator('.CheckoutPayment_code_makecommerce');
@@ -289,17 +298,11 @@ class Checkout extends BasePage {
   }
 
   /**
-   * Select the appropriate delivery method based on options count.
-   * If 3 options - select second, if 2 options - select first.
+   * Select delivery method by type.
+   * @param {string} type - Delivery type: 'store_pickup', 'parcel', or 'carrier'
    */
-  async selectDeliveryMethodByOptionsCount() {
-    const deliveryOptions = this.deliveryMethodButton;
-    const optionsCount = await deliveryOptions.count();
-    if (optionsCount === 3) {
-      await deliveryOptions.nth(1).click();
-    } else {
-      await deliveryOptions.first().click();
-    }
+  async selectDeliveryMethod(type) {
+    await this.page.locator(`.CheckoutDeliveryOptions-TypeListOption_type_${type} button`).click();
   }
 
   /**
@@ -327,12 +330,10 @@ class Checkout extends BasePage {
     // Step 1: Select delivery method
     await expect(this.deliveryMethodSelector).toBeVisible();
     await this.deliveryMethodSelector.click();
-    // TODO new classes were introduced
-    await this.selectDeliveryMethodByOptionsCount();
+    await this.selectDeliveryMethod('parcel');
 
     // Step 2: Select DPD pickup
-    await expect(this.dpdPickupRadio).toBeVisible();
-    await this.dpdPickupRadio.click();
+    await this.selectPickupPoint('dpd_pickup');
     await expect(this.deliveryOptionDropdown).toBeVisible();
     await this.deliveryOptionDropdown.click();
     await this.deliveryOptionDropdownOption.first().click();
