@@ -87,6 +87,38 @@ module.exports = defineConfig({
         viewport: { width: 1440, height: 900 },
       },
     },
+    {
+      name: 'sportland-lt',
+      use: {
+        baseURL: activeUrls.sportlandLt,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: 'sportland-outlet-lv',
+      use: {
+        baseURL: activeUrls.sportlandOutletLv,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: 'sportland-outlet-ee',
+      use: {
+        baseURL: activeUrls.sportlandOutletEe,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: 'sportland-outlet-lt',
+      use: {
+        baseURL: activeUrls.sportlandOutletLt,
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
+      },
+    },
 
     {
       name: 'sportland-pl',

@@ -21,6 +21,7 @@ const checkoutTestData = {
   telephoneCom: '+37256055156',
   telephoneEe: '56055156',
   telephoneLv: '22562562',
+  telephoneLt: '61234567',
   telephonePl: '573564371',
 };
 
@@ -341,10 +342,14 @@ class Checkout extends BasePage {
    * @returns {string} Phone number for the project
    */
   getPhoneNumberByProject(testInfo) {
-    if (testInfo.project.name.includes('pl')) {
-      return this.testData.telephonePl;
-    } else if (testInfo.project.name.includes('lv')) {
+    if (testInfo.project.name.includes('outlet-lt') || testInfo.project.name.includes('lt')) {
+      return this.testData.telephoneLt;
+    } else if (testInfo.project.name.includes('outlet-lv') || testInfo.project.name.includes('lv')) {
       return this.testData.telephoneLv;
+    } else if (testInfo.project.name.includes('outlet-ee') || testInfo.project.name.includes('ee')) {
+      return this.testData.telephoneEe;
+    } else if (testInfo.project.name.includes('pl')) {
+      return this.testData.telephonePl;
     } else if (testInfo.project.name.includes('com')) {
       return this.testData.telephoneCom;
     } else {

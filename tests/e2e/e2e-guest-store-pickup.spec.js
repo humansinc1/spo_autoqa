@@ -7,6 +7,11 @@ import { Pdp } from '../../pages/pdp.js';
 import { Checkout } from '../../pages/checkout.js';
 
 test('E2E: Guest one product/store pickup/swedbank checkout', async ({ page }, testInfo) => {
+  const isBalticProject = /(sportland-(lv|ee|lt)|sportland-outlet-(lv|ee|lt))/.test(
+    testInfo.project.name
+  );
+  test.skip(!isBalticProject, 'E2E runs only on Baltic stores (lv, ee, lt + outlets)');
+
   const homePage = new HomePage(page);
   const cookieConsent = new CookieConsentDialog(page);
   const menuOverlay = new MenuOverlay(page);

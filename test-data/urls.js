@@ -16,8 +16,11 @@ const urls = {
   demo: {
     sportlandEe: 'https://demo-sportland-ee.readymage.com',
     sportlandLv: 'https://demo-sportland-lv.readymage.com',
+    sportlandLt: 'https://demo-sportland-lt.readymage.com/',
     sportlandCom: 'https://demo-sportland.readymage.com',
-    demoSportlandOutletLv: 'https://demo-sportland-outlet-lv.readymage.com',
+    sportlandOutletLv: 'https://demo-sportland-outlet-lv.readymage.com',
+    sportlandOutletEe: 'https://demo-sportland-outlet-ee.readymage.com/',
+    sportlandOutletLt: 'https://demo-sportland-outlet-lt.readymage.com/',
     sportlandPl: 'https://sportland-dev-pfr-pl.readymage.com',
   },
   live: {
