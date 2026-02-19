@@ -40,6 +40,14 @@ class CookieConsentDialog extends BasePage {
   }
 
   /**
+   * Locator for the "Accept necessary" button in cookie popup.
+   * Uses structural selector to avoid locale-specific text matching.
+   */
+  get acceptNecessaryButton() {
+    return this.dialogContainer.locator('button.Button:not(.Button-AcceptAll)').nth(1);
+  }
+
+  /**
    * Cookie text by locale.
    */
   get cookieTexts() {
@@ -172,6 +180,36 @@ class CookieConsentDialog extends BasePage {
     await expect(this.overlayWrapper).not.toBeVisible({ timeout: 5000 });
     // Additional small wait for animation to complete
     await this.page.waitForTimeout(300);
+  }
+
+  /**
+   * Verify "Accept all" stores amcookie_allowed cookie with expected value.
+   */
+  async verifyAcceptAllCookie() {
+    await expect.poll(async () => {
+      const cookies = await this.page.context().cookies();
+      return cookies.find(cookie => cookie.name === 'amcookie_allowed')?.value ?? null;
+    }).toBe('0');
+  }
+
+  /**
+   * Accept only necessary cookies to dismiss the popup.
+   */
+  async acceptNecessaryCookies() {
+    await expect(this.acceptNecessaryButton).toBeVisible();
+    await this.acceptNecessaryButton.click();
+    await expect(this.dialogContainer).not.toBeVisible({ timeout: 5000 });
+    await expect(this.overlayWrapper).not.toBeVisible({ timeout: 5000 });
+  }
+
+  /**
+   * Verify "Accept necessary" stores amcookie_allowed cookie with expected value.
+   */
+  async verifyAcceptNecessaryCookie() {
+    await expect.poll(async () => {
+      const cookies = await this.page.context().cookies();
+      return cookies.find(cookie => cookie.name === 'amcookie_allowed')?.value ?? null;
+    }).toBe('4');
   }
 
   /**
