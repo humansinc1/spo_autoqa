@@ -1,6 +1,6 @@
 // @ts-nocheck
 // This file is checked by Node.js at runtime, not TypeScript
-const { defineConfig } = require('@playwright/test');
+const { defineConfig, devices } = require('@playwright/test');
 const { urls } = require('./test-data/urls');
 
 /**
@@ -126,6 +126,38 @@ module.exports = defineConfig({
         baseURL: activeUrls.sportlandPl,
         browserName: 'chromium',
         viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: 'sportland-ee-mobile',
+      use: {
+        ...devices['iPhone 13'],
+        baseURL: activeUrls.sportlandEe,
+        browserName: 'chromium',
+      },
+    },
+    {
+      name: 'sportland-lv-mobile',
+      use: {
+        ...devices['iPhone 13'],
+        baseURL: activeUrls.sportlandLv,
+        browserName: 'chromium',
+      },
+    },
+    {
+      name: 'sportland-lt-mobile',
+      use: {
+        ...devices['iPhone 13'],
+        baseURL: activeUrls.sportlandLt,
+        browserName: 'chromium',
+      },
+    },
+    {
+      name: 'sportland-com-mobile',
+      use: {
+        ...devices['iPhone 13'],
+        baseURL: activeUrls.sportlandCom,
+        browserName: 'chromium',
       },
     },
   ],
