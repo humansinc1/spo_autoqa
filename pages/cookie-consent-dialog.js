@@ -227,6 +227,17 @@ class CookieConsentDialog extends BasePage {
   }
 
   /**
+   * Verify personalize settings popup is visible and matches visual baseline.
+   */
+  async verifyPersonalizePopupVisibleWithScreenshot() {
+    await expect(this.gdprSettingsPopup).toBeVisible();
+    await expect(this.gdprSettingsPopup).toHaveScreenshot('cookie-personalize-popup.png', {
+      animations: 'disabled',
+      caret: 'hide',
+    });
+  }
+
+  /**
    * Enable Functional cookies category only when it is currently disabled.
    */
   async enableFunctionalCookiesIdempotent() {

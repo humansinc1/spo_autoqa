@@ -63,6 +63,7 @@ test.describe('Cookie popup tests', () => {
 
     // Open preferences, enable functional cookies, and confirm choice
     await cookieConsentDialog.openPersonalize();
+    await cookieConsentDialog.verifyPersonalizePopupVisibleWithScreenshot();
     await cookieConsentDialog.enableFunctionalCookiesIdempotent();
     await cookieConsentDialog.confirmMyChoice();
 
