@@ -54,4 +54,19 @@ test.describe('Cookie popup tests', () => {
     // Verify consent cookie is stored for necessary-only consent
     await cookieConsentDialog.verifyAcceptNecessaryCookie();
   });
+
+  geoIPTest('cookie popup stores functional+necessary cookie after personalize confirm', async ({ pageWithGeoIPHandled }) => {
+    const cookieConsentDialog = new CookieConsentDialog(pageWithGeoIPHandled);
+
+    // Verify cookie popup is visible before interacting with preferences
+    await cookieConsentDialog.verifyDialogVisible();
+
+    // Open preferences, enable functional cookies, and confirm choice
+    await cookieConsentDialog.openPersonalize();
+    await cookieConsentDialog.enableFunctionalCookiesIdempotent();
+    await cookieConsentDialog.confirmMyChoice();
+
+    // Verify encoded cookie value for necessary + functional categories
+    await cookieConsentDialog.verifyConsentCookieValue('4%2C5');
+  });
 });

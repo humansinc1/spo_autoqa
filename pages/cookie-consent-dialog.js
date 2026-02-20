@@ -18,6 +18,13 @@ class CookieConsentDialog extends BasePage {
   }
 
   /**
+   * Locator for advanced GDPR cookie settings popup.
+   */
+  get gdprSettingsPopup() {
+    return this.page.locator('.Popup_isVisible.GdprCookiePopup');
+  }
+
+  /**
    * Locator for the cookie popup title.
    */
   get cookiePopupTitle() {
@@ -46,6 +53,31 @@ class CookieConsentDialog extends BasePage {
   get acceptNecessaryButton() {
     return this.dialogContainer.locator('button.Button:not(.Button-AcceptAll)').nth(1);
   }
+
+  /**
+   * Locator for the "Personalize / Cookie settings" button in initial popup.
+   * Uses structural selector to avoid locale-specific text matching.
+   */
+  get personalizeButton() {
+    return this.dialogContainer.locator('.CookiePopup-CTA button.Button').first();
+  }
+
+  /**
+   * Locator for functional cookies toggle in GDPR cookie settings popup.
+   * First non-disabled checkbox corresponds to Functional cookies category.
+   */
+  get functionalCookieToggle() {
+    return this.gdprSettingsPopup.locator('input[type="checkbox"]:not([disabled])').first();
+  }
+
+  /**
+   * Locator for "Confirm my choice" button in GDPR cookie settings popup.
+   * Uses CTA container + button order instead of text selector.
+   */
+  get confirmMyChoiceButton() {
+    return this.gdprSettingsPopup.locator('.CookiePopup-CTA button.Button').nth(1);
+  }
+
 
   /**
    * Cookie text by locale.
@@ -183,6 +215,40 @@ class CookieConsentDialog extends BasePage {
   }
 
   /**
+   * Open advanced cookie preferences dialog from initial popup.
+   */
+  async openPersonalize() {
+    if (await this.gdprSettingsPopup.isVisible().catch(() => false)) {
+      return;
+    }
+    await expect(this.personalizeButton).toBeVisible();
+    await this.personalizeButton.click();
+    await expect(this.gdprSettingsPopup).toBeVisible();
+  }
+
+  /**
+   * Enable Functional cookies category only when it is currently disabled.
+   */
+  async enableFunctionalCookiesIdempotent() {
+    await expect(this.functionalCookieToggle).toBeVisible();
+    if (!(await this.functionalCookieToggle.isChecked())) {
+      await this.functionalCookieToggle.click();
+    }
+    await expect(this.functionalCookieToggle).toBeChecked();
+  }
+
+  /**
+   * Confirm selected cookie preferences and wait until popup is dismissed.
+   */
+  async confirmMyChoice() {
+    await expect(this.confirmMyChoiceButton).toBeVisible();
+    await this.confirmMyChoiceButton.click();
+    await expect(this.dialogContainer).not.toBeVisible({ timeout: 5000 });
+    await expect(this.overlayWrapper).not.toBeVisible({ timeout: 5000 });
+    await expect(this.gdprSettingsPopup).not.toBeVisible({ timeout: 5000 });
+  }
+
+  /**
    * Verify "Accept all" stores amcookie_allowed cookie with expected value.
    */
   async verifyAcceptAllCookie() {
@@ -210,6 +276,16 @@ class CookieConsentDialog extends BasePage {
       const cookies = await this.page.context().cookies();
       return cookies.find(cookie => cookie.name === 'amcookie_allowed')?.value ?? null;
     }).toBe('4');
+  }
+
+  /**
+   * Verify amcookie_allowed cookie stores expected value for current consent state.
+   */
+  async verifyConsentCookieValue(expectedValue) {
+    await expect.poll(async () => {
+      const cookies = await this.page.context().cookies();
+      return cookies.find(cookie => cookie.name === 'amcookie_allowed')?.value ?? null;
+    }).toBe(expectedValue);
   }
 
   /**

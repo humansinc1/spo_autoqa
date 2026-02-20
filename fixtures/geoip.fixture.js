@@ -23,15 +23,10 @@ exports.test = test.extend({
     await homePage.openPage();
 
     // Шаг 1: Обработка geoIP popup (только для EE и LV)
-    try {
-      const stayOnCurrentStore = homePage.stayOnCurrentStore;
-      if (await stayOnCurrentStore.isVisible({ timeout: 2000 })) {
-        await stayOnCurrentStore.click();
-        await page.waitForLoadState('networkidle');
-      }
-    } catch {
-      // geoIP popup может отсутствовать (например, на sportland.com)
-    }
+    await homePage.completeGeoIPFlow();
+
+    // Пост-условие: geoIP popup не должен блокировать дальнейшие шаги.
+    await homePage.verifyGeoIPPopupNotVisible();
 
     await use(page);
   },
